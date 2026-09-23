@@ -64,6 +64,7 @@ QString meshlab::defaultPluginPath()
 	if (dLower == "release" || dLower == "relwithdebinfo" || dLower == "debug" ||
 		dLower == "minsizerel") {
 		// This is a configuration directory for MS Visual Studio.
+		// Does not find it mate....
 		pluginsDir.cdUp();
 	}
 	else {
@@ -72,6 +73,13 @@ QString meshlab::defaultPluginPath()
 #endif
 	if (pluginsDir.exists("PlugIns")) {
 		pluginsDir.cd("PlugIns");
+		return pluginsDir.absolutePath();
+	}
+
+	if (pluginsDir.exists("meshlabplugins")) {
+		qDebug("Meshlab Initialization: found a missnamed directory?");
+		pluginsDir.cd("meshlabplugins");
+		//This will not actually be good enough, we will need to recursively run through and find the dll's for each.
 		return pluginsDir.absolutePath();
 	}
 

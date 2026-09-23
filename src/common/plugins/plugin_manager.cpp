@@ -21,6 +21,7 @@
 *                                                                           *
 ****************************************************************************/
 
+
 #include "plugin_manager.h"
 
 #include <QObject>
@@ -62,9 +63,9 @@ PluginManager::~PluginManager()
 /**
  * @brief Checks if the given file is a valid MeshLab plugin.
  * It does not add the plugin to the plugin manager.
- * 
+ *
  * Note: this function is called automatically before loading a plugin.
- * 
+ *
  * Throws a MLException if the file is not a valid MeshLab plugin.
  */
 MeshLabPluginType PluginManager::checkPlugin(const QString& filename)
@@ -112,13 +113,13 @@ MeshLabPluginType PluginManager::checkPlugin(const QString& filename)
 	if (mlVersionPlug.substr(0, 6) != meshlab::meshlabVersion().substr(0, 6)){
 		throw MLException(fin.fileName() + " has different version from the running MeshLab version.");
 	}
-	
+
 	MeshLabPluginType type(ifp);
-	
+
 	if (!type.isValid()){
 		throw MLException(fin.fileName() + " has none of the known plugin types known by this MeshLab version.");
 	}
-	
+
 	//ToDo: proper checks also for other plugin types...
 	if (type.isFilterPlugin()){
 		checkFilterPlugin(qobject_cast<FilterPlugin *>(plugin));
@@ -130,7 +131,7 @@ MeshLabPluginType PluginManager::checkPlugin(const QString& filename)
 
 /**
  * @brief Loads the plugins contained in the default meshlab plugin directory.
- * 
+ *
  * If at least one plugin fails to be loaded, a MLException is thrown.
  * In any case, all the other valid plugins contained in the directory are loaded.
  */
@@ -144,7 +145,7 @@ void PluginManager::loadPlugins()
 
 /**
  * @brief Loads the plugins contained in the given directory.
- * 
+ *
  * If at least one plugin fails to be loaded, a MLException is thrown.
  * In any case, all the other valid plugins contained in the directory are loaded.
  */
@@ -152,10 +153,10 @@ void PluginManager::loadPlugins(QDir pluginsDirectory)
 {
 	if (pluginsDirectory.exists()){
 		QStringList nameFiltersPlugins = fileNamePluginDLLs();
-		
+
 		//only the file with extension pluginfilters will be listed by function entryList()
 		pluginsDirectory.setNameFilters(nameFiltersPlugins);
-		
+
 		//qDebug("Current Plugins Dir is: %s ", qUtf8Printable(pluginsDirectory.absolutePath()));
 		std::list<std::pair<QString, QString>> errors;
 		for(QString fileName : pluginsDirectory.entryList(QDir::Files)) {
@@ -179,9 +180,9 @@ void PluginManager::loadPlugins(QDir pluginsDirectory)
 /**
  * @brief Loads the plugin specified in the given file and adds the plugin into the
  * PluginManager.
- * 
+ *
  * Note: better to give the absolute path of the plugin file.
- * 
+ *
  * Throws a MLException if the load of the plugin fails.
  */
 MeshLabPlugin* PluginManager::loadPlugin(const QString& fileName)
@@ -197,7 +198,7 @@ MeshLabPlugin* PluginManager::loadPlugin(const QString& fileName)
 	QObject *plugin = loader->instance();
 	MeshLabPlugin* ifp = dynamic_cast<MeshLabPlugin *>(plugin);
 	MeshLabPluginType type(ifp);
-	
+
 	if (type.isDecoratePlugin()){
 		decoratePlugins.pushDecoratePlugin(qobject_cast<DecoratePlugin *>(plugin));
 	}

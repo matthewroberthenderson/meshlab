@@ -100,21 +100,21 @@ U3DIOPlugin::U3DIOPlugin() :
 
 void U3DIOPlugin::open(
 		const QString& format,
-		const QString &, 
-		MeshModel &, 
-		int&, 
-		const RichParameterList &, 
+		const QString &,
+		MeshModel &,
+		int&,
+		const RichParameterList &,
 		CallBackPos *)
 {
 	wrongOpenFormat(format);
 }
 
 void U3DIOPlugin::save(
-		const QString &formatName, 
-		const QString &fileName, 
-		MeshModel &m, 
-		const int mask, 
-		const RichParameterList & par, 
+		const QString &formatName,
+		const QString &fileName,
+		MeshModel &m,
+		const int mask,
+		const RichParameterList & par,
 		vcg::CallBackPos *)
 {
 #ifdef _WIN32 // on windows, path is the same regardless BUILD_MODE
@@ -140,7 +140,7 @@ void U3DIOPlugin::save(
 	std::string ex = formatName.toUtf8().data();
 
 	QStringList textures_to_be_restored;
-	QStringList lst = 
+	QStringList lst =
 			vcg::tri::io::ExporterIDTF<CMeshO>::convertInTGATextures(
 				m.cm, QDir::tempPath(), textures_to_be_restored);
 	if(formatName.toUpper() == tr("U3D")) {
@@ -225,12 +225,12 @@ std::list<FileFormat> U3DIOPlugin::exportFormats() const
 }
 
 /*
-	returns the mask on the basis of the file's type. 
+	returns the mask on the basis of the file's type.
 	otherwise it returns 0 if the file format is unknown
 */
 void U3DIOPlugin::exportMaskCapability(
-		const QString &format, 
-		int &capability, 
+		const QString &format,
+		int &capability,
 		int &defaultBits) const
 {
 	if(format.toUpper() == tr("U3D")) {
@@ -276,7 +276,7 @@ RichParameterList U3DIOPlugin::initSaveParameter(const QString &, const MeshMode
 
 void U3DIOPlugin::saveParameters(const RichParameterList &par, vcg::tri::io::u3dparametersclasses::Movie15Parameters<CMeshO>& _param)
 {
-	Point3m from_target_to_camera = 
+	Point3m from_target_to_camera =
 			Point3m(par.getPoint3m(QString("position_val")) - par.getPoint3m(QString("target_val")));
 	vcg::tri::io::u3dparametersclasses::Movie15Parameters<CMeshO>::CameraParameters* sw = _param._campar;
 	Point3m p = sw->_obj_pos;
@@ -293,7 +293,7 @@ void U3DIOPlugin::saveLatex(const QString& file,const vcg::tri::io::u3dparameter
 	QString u3df = file + ".u3d";
 	QStringList file_trim;
 	vcg::tri::io::QtUtilityFunctions::splitFilePath(u3df,file_trim);
-	std::string u3d_final = 
+	std::string u3d_final =
 			vcg::tri::io::QtUtilityFunctions::fileNameFromTrimmedPath(file_trim).toStdString();
 	latex.write(0,"\\documentclass[a4paper]{article}");
 	latex.write(0,"\\usepackage[3Dmenu]{media9}");

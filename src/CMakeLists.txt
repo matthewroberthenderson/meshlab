@@ -182,6 +182,7 @@ if(NOT DEFINED MESHLAB_PLUGINS) # it may be already defined in parent directory
 		meshlabplugins/filter_trioptimize
 		meshlabplugins/filter_unsharp
 		meshlabplugins/filter_voronoi
+		meshlabplugins/filter_xpbd_warp
 
 		# Rendering and Decoration Plugins
 		meshlabplugins/render_gdp

@@ -72,6 +72,17 @@ add_executable(meshlab WIN32 MACOSX_BUNDLE
 	${SOURCES} ${HEADERS} ${RESOURCES}
 	${UI})
 
+if(MSVC)
+    # Define the base distrib path
+    set(DISTRIB_DIR "${CMAKE_BINARY_DIR}/src/distrib")
+
+    set_target_properties(meshlab PROPERTIES
+        # Dynamically appends /Debug or /Release based on your VS dropdown
+        VS_DEBUGGER_WORKING_DIRECTORY "${DISTRIB_DIR}/$<CONFIG>"
+        VS_DEBUGGER_COMMAND "${DISTRIB_DIR}/$<CONFIG>/meshlab.exe"
+    )
+endif()
+
 target_compile_definitions(meshlab PUBLIC QT_DISABLE_DEPRECATED_BEFORE=0x000000)
 target_include_directories(meshlab PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
@@ -91,7 +102,7 @@ if (APPLE)
 		MACOSX_BUNDLE_INFO_STRING "MeshLab ${MESHLAB_VERSION}"
 		MACOSX_BUNDLE_COPYRIGHT "Copyright VCG-ISTI-CNR © 2005-2021. All rights reserved."
 		)
-	
+
 	set_additional_settings_info_plist(
 		TARGET meshlab
 		FILE ${MESHLAB_BUILD_DISTRIB_DIR}/meshlab.app/Contents/Info.plist)
@@ -110,7 +121,7 @@ if(WIN32)
 
     if(WINDEPLOYQT_EXECUTABLE)
         add_custom_command(TARGET meshlab POST_BUILD
-            COMMAND ${WINDEPLOYQT_EXECUTABLE} 
+            COMMAND ${WINDEPLOYQT_EXECUTABLE}
                 $<$<CONFIG:Debug>:--debug>
                 $<$<CONFIG:Release>:--release>
                 --no-compiler-runtime
