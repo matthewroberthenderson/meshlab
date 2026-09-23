@@ -1,11 +1,11 @@
 #include "filter_xpbd_warp.h"
 
 #include <map>
+#include <set>
 #include <vcg/complex/algorithms/update/bounding.h>
 #include <vcg/complex/algorithms/update/normal.h>
 #include <vcg/complex/algorithms/update/topology.h>
 #include <vector>
-#include <set>
 
 using namespace vcg;
 using namespace vcg::tri;
@@ -99,7 +99,7 @@ int FilterXPBD::getPreConditions(const QAction* action) const
 	default: assert(0); return 0;
 	}
 }
-//mm->updateDataMask(MeshModel::MM_FACEFACETOPO);
+
 std::map<std::string, QVariant> FilterXPBD::applyFilter(
 	const QAction*           action,
 	const RichParameterList& par,
@@ -125,8 +125,10 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 		float compliance   = par.getFloat("compliance");
 		float pressure     = par.getFloat("pressure");
 		bool  useSelection = par.getBool("use_selection");
-		float dt           = 0.016f;
-		float dt2          = dt * dt;
+
+		// dt2 is still needed for XPBD compliance calculation (alpha)
+		float dt  = 0.016f;
+		float dt2 = dt * dt;
 
 		vcg::tri::UpdateNormal<CMeshO>::PerFaceNormalized(m);
 		vcg::tri::UpdateNormal<CMeshO>::PerVertexNormalized(m);
@@ -136,6 +138,9 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 		std::vector<vcg::Point3f> predictedPos(max_verts);
 		std::vector<float>        invMass(max_verts, -1.0f); // -1.0f flags invalid/deleted holes
 
+		// Calculate a scale-invariant multiplier based on the mesh size
+		float scaleFactor = m.bbox.Diag() / 100.0f;
+
 		int idx = 0;
 		for (auto vi = m.vert.begin(); vi != m.vert.end(); ++vi, ++idx) {
 			if (vi->IsD())
@@ -144,8 +149,9 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 			float im     = (useSelection && !vi->IsS()) ? 0.0f : 1.0f;
 			invMass[idx] = im; // Safe: idx is strictly bound to max_verts
 
-			vcg::Point3f externalForce = vi->N() * pressure;
-			predictedPos[idx]          = vi->P() + (externalForce * im * dt2);
+			// Apply pressure directly as a percentage of the mesh's bounding box
+			vcg::Point3f externalForce = vi->N() * (pressure * scaleFactor);
+			predictedPos[idx]          = vi->P() + (externalForce * im);
 		}
 
 		// 2. Extract edges safely using exact memory offsets
@@ -257,7 +263,9 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 int FilterXPBD::postCondition(const QAction* action) const
 {
 	switch (ID(action)) {
-	case FP_XPBD_WARP: return MeshModel::MM_VERTNORMAL | MeshModel::MM_FACENORMAL;
+	case FP_XPBD_WARP:
+		// MM_VERTCOORD tells MeshLab to visually update the vertex positions in the viewport
+		return MeshModel::MM_VERTCOORD | MeshModel::MM_VERTNORMAL | MeshModel::MM_FACENORMAL;
 	default: assert(0); return 0;
 	}
 }
@@ -270,5 +278,5 @@ std::pair<std::string, bool> FilterXPBD::getMLVersion() const
 	return std::make_pair(std::string(std::to_string(MESHLAB_VERSION)), false);
 }
 
-	// Essential for modern MeshLab plugins to export the class properly
+// Essential for modern MeshLab plugins to export the class properly
 MESHLAB_PLUGIN_NAME_EXPORTER(FilterXPBD)
