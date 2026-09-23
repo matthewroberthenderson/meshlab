@@ -133,7 +133,7 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 		vcg::tri::UpdateNormal<CMeshO>::PerFaceNormalized(m);
 		vcg::tri::UpdateNormal<CMeshO>::PerVertexNormalized(m);
 
-		// 1. Allocate exactly the physical capacity of the VCG container
+		// Allocate exactly the physical capacity of the VCG container
 		size_t                    max_verts = m.vert.size();
 		std::vector<vcg::Point3f> predictedPos(max_verts);
 		std::vector<float>        invMass(max_verts, -1.0f); // -1.0f flags invalid/deleted holes
@@ -154,7 +154,7 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 			predictedPos[idx]          = vi->P() + (externalForce * im);
 		}
 
-		// 2. Extract edges safely using exact memory offsets
+		// Extract edges safely using exact memory offsets
 		struct EdgeConstraint
 		{
 			int   v1;
@@ -196,7 +196,7 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 			}
 		}
 
-		// 3. XPBD Solver Iterations
+		// XPBD Solver Iterations
 		float alpha = compliance / dt2;
 		for (int iter = 0; iter < iterations; ++iter) {
 			if (cb && (iter % 5 == 0)) {
@@ -234,7 +234,7 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 			}
 		}
 
-		// 4. Finalize positions
+		// Finalize positions
 		idx = 0;
 		for (auto vi = m.vert.begin(); vi != m.vert.end(); ++vi, ++idx) {
 			if (vi->IsD())
@@ -247,7 +247,7 @@ std::map<std::string, QVariant> FilterXPBD::applyFilter(
 			}
 		}
 
-		// 5. Cleanup
+		// Cleanup
 		vcg::tri::UpdateNormal<CMeshO>::PerFaceNormalized(m);
 		vcg::tri::UpdateNormal<CMeshO>::PerVertexNormalized(m); // Safer than AngleWeighted
 		vcg::tri::UpdateBounding<CMeshO>::Box(m);

@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <common/plugins/interfaces/filter_plugin.h>
-#include <string>  // Needed for std::string
-#include <utility> // Needed for std::pair
+#include <string>  
+#include <utility> 
 
 class FilterXPBD : public QObject, public FilterPlugin
 {
@@ -36,7 +36,6 @@ public:
 
 	int postCondition(const QAction* action) const override;
 
-	// REQUIRED by modern MeshLabPlugin base class
 	std::pair<std::string, bool> getMLVersion() const override;
 };
 
